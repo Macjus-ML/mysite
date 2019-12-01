@@ -1,0 +1,28 @@
+<!--
+  С помощью тега {'экстендс'} указываем, что list.html унаследован от базо- вого шаблона blog/base
+-->
+{% extends "blog/base.html" %}
+
+{% block title %}Мой блог{% endblock %}
+
+{% block content %}
+  <h1>Мой блог</h1>
+  {% for post in posts %}
+    <h2>
+      <a href="{{ post.get_absolute_url }}">
+        {{ post.title }}
+      </a>
+    </h2>
+    <p class="date">
+      Published {{ post.publish }} by {{ post.author }}
+    </p>
+      <!--
+        Применяем два фильтра: truncatewords, обрезающий текст после указанного количества слов, и linebreaks, преобразующий вывод в HTML с переносами строки. Мы можем применять фильтры в цепочке, тогда каждый последующий будет действовать на результат предыдущего.
+      -->
+    {{ post.body|truncatewords:30|linebreaks }}
+  {% endfor %}
+  <!-- function based -->
+ <!--  {% include "pagination.html" with page=posts %}   -->
+  <!-- class-based -->
+  {% include "pagination.html" with page=page_obj %}
+{% endblock %}

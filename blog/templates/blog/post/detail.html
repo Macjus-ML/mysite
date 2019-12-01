@@ -1,0 +1,15 @@
+<!--
+  С помощью тега {'экстендс'} указываем, что list.html унаследован от базо- вого шаблона blog/base
+-->
+
+{% extends "blog/base.html" %} 
+ 
+{% block title %}{{ post.title }}{% endblock %} 
+ 
+{% block content %} 
+  <h1>{{ post.title }}</h1> 
+  <p class="date"> 
+    Published {{ post.publish }} by {{ post.author }} 
+  </p> 
+  {{ post.body|linebreaks }} 
+{% endblock %}
