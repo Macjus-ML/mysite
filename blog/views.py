@@ -52,7 +52,7 @@ def post_list(request, tag_slug=None):
 class PostListView(ListView):
     queryset = Post.published.all()
     context_object_name = 'posts'
-    paginate_by = 3
+    paginate_by = 4
     template_name = 'blog/post/list.html'
 
 

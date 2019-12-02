@@ -9,7 +9,8 @@ https://docs.djangoproject.com/en/2.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.0/ref/settings/
 """
-
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
 import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -129,3 +130,8 @@ EMAIL_PORT = 465
 EMAIL_HOST_USER = "bolshakovAV@yandex.ru"
 EMAIL_HOST_PASSWORD = ""
 EMAIL_USE_SSL = True
+
+sentry_sdk.init(
+    dsn="https://ac10cf26ab99476280a5768df86529c2@sentry.io/1841673",
+    integrations=[DjangoIntegration()]
+)
