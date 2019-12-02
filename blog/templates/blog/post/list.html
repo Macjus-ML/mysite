@@ -3,6 +3,8 @@
 -->
 {% extends "blog/base.html" %}
 
+{% load blog_tags %}
+
 {% block title %}Мой блог{% endblock %}
 
 {% block content %}
@@ -31,7 +33,8 @@
       <!--
         Применяем два фильтра: truncatewords, обрезающий текст после указанного количества слов, и linebreaks, преобразующий вывод в HTML с переносами строки. Мы можем применять фильтры в цепочке, тогда каждый последующий будет действовать на результат предыдущего.
       -->
-    {{ post.body|truncatewords:30|linebreaks }}
+    {{ post.body|markdown|truncatewords_html:30 }}
+    <!-- {{ post.body|truncatewords:30|linebreaks }} -->
   {% endfor %}
   <!-- function based -->
   {% include "pagination.html" with page=posts %}
