@@ -1,7 +1,10 @@
 from django.shortcuts import render, get_object_or_404
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.views.generic import ListView
-from .models import Post
+from django.core.mail import send_mail
+from django.db.models import Count
+from .models import Post,Comment
+from .forms import EmailPostForm, CommentForm
 
 '''
 Это версия без разделения на страницы
@@ -55,8 +58,68 @@ def post_detail(request, year, month, day, post):
                                    publish__year=year,
                                    publish__month=month,
                                    publish__day=day)
+   # Список активных комментариев для этой статьи.
+    comments = post.comments.filter(active = True)
+    new_comment = None
+   # Если приходит POST  запрос
+    if request.method == 'POST':
+      # Пользователь отправил комментарий.
+      # заполняем форму данными из запроса
+       comment_form = CommentForm(data=request.POST)
+      # валидируем ее методом is_valid()
+       if comment_form.is_valid():
+         # Создаем комментарий, но пока не сохраняем в базе данных.
+          new_comment = comment_form.save(commit=False)
+         # Привязываем комментарий к текущей статье.
+          new_comment.post = post
+         # Сохраняем комментарий в базе данных.
+          new_comment.save()
+      #при GET-запросе используем запись comment = CommentForm()
+    else:
+       comment_form = CommentForm()
    # используем функцию render() для формирования HTML-шаблона.
     return render(request,
                   'blog/post/detail.html',
-                  {'post': post})
+                  {'post': post,
+                   'comments': comments,
+                   'new_comment': new_comment,
+                   'comment_form': comment_form,
+                   # 'similar_posts': similar_posts
+                   })
+
+
+# определяем функцию post_share, которая принимает объект запроса request и параметр post_id;
+def post_share(request, post_id):
+   #Получение статьи по идентификатору и подтверждение, что статья опубликована
+    post = get_object_or_404(Post, id=post_id, status='published')
+   # Sent  будет установлена в True  после отправки сообщения
+    sent = False
+   # Если заполненная форма отправляется методом POST
+   # обрабатываем данные формы и отправляем их на почту.
+    if request.method == 'POST':
+   # Форма была отправлена на сохранение.
+        form = EmailPostForm(request.POST)
+   # Проверка введенных данных с помощью метода формы is_valid()
+        if form.is_valid():
+   # Если все поля формы прошли валидацию.
+   # получаем введенные данные с помощью form. cleaned_data
+            cd = form.cleaned_data
+   # добавим в сообщение абсолютную ссылку на сообщение
+            post_url = request.build_absolute_uri(
+                                          post.get_absolute_url())
+            subject = '{} ({}) recommends you reading "{}"'.format(cd['name'], cd['email'], post.title)
+            message = 'Read "{}" at {}\n\n{}\'s comments: {}'.format(post.title, post_url, cd['name'], cd['comments'])
+            send_mail(subject, message, 'bolshakovav@yandex.ru',[cd['to']])
+            sent = True
+   # Если метод запроса – GET, необходимо отобразить пустую форму;
+    else:
+        form = EmailPostForm()
+    return render(request, 'blog/post/share.html', {'post': post,
+                                                    'form': form,
+                                                    'sent': sent})
+
+
+
+
+
 
