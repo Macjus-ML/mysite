@@ -5,6 +5,7 @@ from django.core.mail import send_mail
 from django.db.models import Count
 from .models import Post,Comment
 from .forms import EmailPostForm, CommentForm
+from taggit.models import Tag
 
 '''
 Это версия без разделения на страницы
@@ -20,8 +21,12 @@ def post_list(request):
 '''
 Это версия включает пагинатор -  разделения на страницы
 '''
-def post_list(request):
+def post_list(request, tag_slug=None):
     object_list = Post.published.all()
+    tag = None
+    if tag_slug:
+      tag = get_object_or_404(Tag,slug=tag_slug)
+      object_list=object_list.filter(tags__in=[tag])
    # инициализируем объект класса Paginator, указав количество объектов на одной странице;
    # По 3 статьи на каждой странице.
     paginator = Paginator(object_list, 3)
@@ -40,7 +45,9 @@ def post_list(request):
     return render(request,
                   'blog/post/list.html',
                   {'page': page,
-                   'posts': posts})
+                   'posts': posts,
+                   'tag': tag})
+
 # Обработчик PostListView является аналогом функции post_list 
 class PostListView(ListView):
     queryset = Post.published.all()
