@@ -17,6 +17,16 @@
       Поделится этим постом
     </a>
   </p>
+  
+  <h3>Похожие посты</h3>
+  {% for post in similar_posts %}
+    <p>
+      <a href="{{ post.get_absolute_url }}">{{ post.title }}</a>
+    </p>
+  {% empty %}
+    Пока нет похожих постов.
+  {% endfor %}
+
   {% with comments.count as total_comments %}
     <h2>
       {{ total_comments }} comment{{ total_comments|pluralize }}

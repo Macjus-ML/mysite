@@ -29,7 +29,7 @@ def post_list(request, tag_slug=None):
       object_list=object_list.filter(tags__in=[tag])
    # инициализируем объект класса Paginator, указав количество объектов на одной странице;
    # По 3 статьи на каждой странице.
-    paginator = Paginator(object_list, 3)
+    paginator = Paginator(object_list, 5)
    # извлекаем из запроса GET-параметр page, который указывает текущую страницу
     page = request.GET.get('page')
    # получаем список объектов на нужной странице с помощью метода page()класса Paginator
@@ -85,13 +85,27 @@ def post_detail(request, year, month, day, post):
     else:
        comment_form = CommentForm()
    # используем функцию render() для формирования HTML-шаблона.
+   # Формирование списка похожих статей
+   # получаем все ID тегов текущей статьи
+   # flat=True,чтобы получить «плоский» список вида [1, 2, 3, ...]
+    post_tags_ids = post.tags.values_list('id',flat=True)
+    # получает все статьи, содержащие хоть один тег из полученных ранее,
+    similar_posts = Post.published.filter(tags__in=post_tags_ids)\
+    .exclude(id=post.id) #исключая текущую статью;
+    # использует Count для формирования вычисляемого поля same_tags
+    # сортирует список опубликованных статей в убывающем порядке по
+    # количеству совпадающих тегов для отображения первыми максимально похожих статей
+    # и делает срез результата для отображения только четырех статей
+    similar_posts = similar_posts.annotate(same_tags=Count('tags'))\
+    .order_by('-same_tags','-publish')[:4]
+
     return render(request,
                   'blog/post/detail.html',
                   {'post': post,
                    'comments': comments,
                    'new_comment': new_comment,
                    'comment_form': comment_form,
-                   # 'similar_posts': similar_posts
+                   'similar_posts': similar_posts
                    })
 
 
