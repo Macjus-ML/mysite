@@ -9,7 +9,8 @@ https://docs.djangoproject.com/en/2.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.0/ref/settings/
 """
-import sentry_sdk
+# import sentry_sdk
+
 from sentry_sdk.integrations.django import DjangoIntegration
 import os
 import django_heroku
@@ -43,6 +44,7 @@ INSTALLED_APPS = [
     'taggit',
     'django.contrib.sites',
     'django.contrib.sitemaps',
+    'django.contrib.postgres',
 ]
 
 MIDDLEWARE = [
@@ -78,14 +80,22 @@ WSGI_APPLICATION = 'mysite.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
-
+# SQLite3
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+#     }
+# }
+# PostgreSQL
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+     'default': {
+     'ENGINE': 'django.db.backends.postgresql',
+     'NAME': 'blog',
+     'USER': 'blog',
+     'PASSWORD': 'blog',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
@@ -132,7 +142,7 @@ EMAIL_HOST_USER = "bolshakovAV@yandex.ru"
 EMAIL_HOST_PASSWORD = ""
 EMAIL_USE_SSL = True
 
-sentry_sdk.init(
-    dsn="https://ac10cf26ab99476280a5768df86529c2@sentry.io/1841673",
-    integrations=[DjangoIntegration()]
-)
+# sentry_sdk.init(
+#     dsn="https://ac10cf26ab99476280a5768df86529c2@sentry.io/1841673",
+#     integrations=[DjangoIntegration()]
+# )
